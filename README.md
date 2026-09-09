@@ -25,7 +25,6 @@ A tiny desktop/web app that acts like an unhinged digital bunny living inside yo
 ## Getting Started
 
 ```bash
-cd bunny-exe
 npm install
 npm run dev
 ```
