@@ -1,0 +1,234 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+/* FERAL MODE - everything goes crazy */
+.app.feral-mode {
+  animation: shake 0.1s infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-5px) rotate(-2deg); }
+  75% { transform: translateX(5px) rotate(2deg); }
+}
+
+.bunny-window {
+  background: #16213e;
+  border: 3px solid #c44dff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(196, 77, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* FERAL window styling */
+.app.feral-mode .bunny-window {
+  border-color: #ff0000;
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+}
+
+.title-bar {
+  background: linear-gradient(90deg, #c44dff, #ff6b6b);
+  padding: 10px 15px;
+  font-weight: bold;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.bunny-display {
+  padding: 20px;
+  text-align: center;
+}
+
+.ascii-bunny {
+  font-size: 12px;
+  line-height: 1.2;
+  margin: 0 auto;
+  white-space: pre;
+  color: #ffd93d;
+  text-shadow: 0 0 5px rgba(255, 217, 61, 0.5);
+  display: inline-block;
+}
+
+/* FERAL bunny glitching */
+.ascii-bunny.feral {
+  color: #ff0000;
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+  animation: glitch 0.2s infinite;
+}
+
+@keyframes glitch {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.02); }
+}
+
+.stats-section {
+  margin: 20px 0;
+  text-align: left;
+}
+
+.stat-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.stat-label {
+  width: 80px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+.stat-bar-bg {
+  flex: 1;
+  height: 16px;
+  background: #0f0f23;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.3s ease;
+}
+
+.stat-value {
+  width: 45px;
+  font-size: 11px;
+  text-align: right;
+  color: #888;
+}
+
+.mood-display {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+/* Mood colors */
+.mood-suspicious { color: #888; }
+.mood-content { color: #4ade80; }
+.mood-excited { color: #ffd93d; }
+.mood-annoyed { color: #ff6b6b; }
+
+/* FERAL mood pulsing */
+.mood-feral { 
+  color: #ff0000;
+  font-weight: bold;
+  animation: pulse 0.3s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 20px;
+  justify-content: center;
+}
+
+.action-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.action-btn.feed {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: #fff;
+}
+
+.action-btn.pet {
+  background: linear-gradient(135deg, #ffd93d, #ffe066);
+  color: #333;
+}
+
+.action-btn.annoy {
+  background: linear-gradient(135deg, #c44dff, #d47aff);
+  color: #fff;
+}
+
+/* FERAL buttons bouncing */
+.app.feral-mode .action-btn {
+  animation: bounce 0.3s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.message-box {
+  background: #0f0f23;
+  border-top: 2px solid #333;
+  padding: 15px 20px;
+  font-size: 13px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message-prefix {
+  color: #c44dff;
+  font-weight: bold;
+}
+
+.message-text {
+  color: #ddd;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .app {
+    padding: 10px;
+  }
+  
+  .button-row {
+    flex-direction: column;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+}
