@@ -4,11 +4,11 @@
 
 A tiny web app that acts like an unhinged digital bunny living inside your browser. It has a personality, reacts to what you're doing, and gets progressively gayer the more you interact with it.
 
-![EstroBunny](https://img.shields.io/badge/EstroBunny-chaos-orange) ![License](https://img.shields.io/badge/license-MIT-green)
+![EstroBunny](https://img.shields.io/badge/EstroBunny-chaos-orange) ![License](https://img.shields.io/badge/license-MIT-green) ![Version](https://img.shields.io/badge/version-v0.4-blue)
 
 ---
 
-## ✨ Features (v0.3 Complete Edition)
+## ✨ Features (v0.4 Desktop Companion Edition)
 
 ### Core Loop
 - **3 Stats**: Hunger, Happiness, Chaos (all decay over time)
@@ -16,7 +16,7 @@ A tiny web app that acts like an unhinged digital bunny living inside your brows
 - **4 Actions**: Feed 🥕, Pet 💕, Annoy 😈, Play Mini-game 🎮
 - **Persistent State**: Bunny survives page refreshes via localStorage
 - **Random Events**: 10% chance every 30s of spontaneous chaos
-- **150+ Messages**: Existential dread, food demands, dev humor, and unhinged commentary
+- **200+ Messages**: Existential dread, food demands, dev humor, and unhinged commentary
 
 ### 🏳️‍⚧️ Estrogen Mode™
 Toggle the trans flag button to activate:
@@ -50,6 +50,8 @@ Toggle the trans flag button to activate:
 - **Well Fed** - Fed bunny 50 times
 - **Pet Master** - Petted bunny 100 times
 - **Chaos Agent** - Annoyed bunny 25 times
+- **Touch Grass** - Opened app after 6 hours away
+- **Terminally Online** - Opened app 47 times in one day
 - **Digital Parenting** - Keep alive for 24 hours (future)
 
 ### 📊 Lifetime Stats
@@ -59,16 +61,19 @@ Tracks everything:
 - Current session time
 - Max chaos reached
 - Total play sessions
+- Time since first adoption
 
 ### 🔔 Desktop Notifications
 - Browser notifications when bunny is hungry and tab is inactive
 - Rate-limited to 1 per minute to avoid spam
+- Permission requested on first interaction
 
 ### 💫 Visual Effects
 - Emoji particle explosions on every interaction
 - Screen shake on high chaos
 - Color bursts matching mood
 - CSS animations go "completely fucking stupid" in FERAL mode
+- Trans flag colors and sparkles in Estrogen Mode™
 
 ---
 
@@ -82,7 +87,7 @@ Tracks everything:
 
 ```bash
 # Clone the repo
-git clone https://github.com/estro-bunny/bunny-exe.git
+git clone https://github.com/yourusername/bunny-exe.git
 cd bunny-exe
 
 # Install dependencies
@@ -172,11 +177,25 @@ bunny-exe/
 - [x] Unlockable skins (7 total)
 - [x] Mini-game system
 - [x] Desktop notifications
-- [x] 6+ achievements
+- [x] 10+ achievements
+
+### ✅ v0.4 - Desktop Companion (DONE)
+- [x] Browser notification API integration
+- [x] Programming trivia mini-games
+- [x] 200+ bunny messages
+- [x] Enhanced stat tracking
+- [x] Session persistence improvements
+- [x] Skin unlock conditions
 - [x] Enhanced visual effects
 
-### 🔜 v0.4 - Future Chaos
+### 🔜 v0.5 - Future Chaos
 - [ ] Sleepy skin (1 hour idle)
+- [ ] Rainbow skin (all achievements)
+- [ ] Custom bunny names
+- [ ] Sound effects / audio
+- [ ] Multiple bunnies
+- [ ] Seasonal events
+- [ ] Bunny house customization
 - [ ] Rainbow skin (all achievements)
 - [ ] 24-hour survival achievement
 - [ ] Custom bunny naming
