@@ -1,457 +1,256 @@
 import { useState, useEffect, useCallback } from 'react'
 
-// ASCII Bunny Arts
-const bunnyArts = {
-  normal: [
-    "   /\\_/\\   ",
-    "  ( o.o )  ",
-    "   > ^ <   ",
-  ],
-  happy: [
-    "   /\\_/\\   ",
-    "  ( ^.^ )  ",
-    "   > ω <   ",
-  ],
-  feral: [
-    "   /╲_╱\\   ",
-    "  ( ಠ_ಠ )  ",
-    "   > 🔪 <  ",
-  ],
-  hacker: [
-    "   /\\_/\\   ",
-    "  ( 0_0 )  ",
-    "   > _ <   ",
-  ],
-  pride: [
-    "   /\\_/\\   ",
-    "  ( 🏳️‍⚧️ )  ",
-    "   > 💕 <  ",
-  ],
+const MESSAGES = {
+  idle: ["staring at your code...", "waiting for estrogen...", "bored. entertain me.", "feed me or i break things"],
+  happy: ["YASSS QUEEN! 💅", "good girl~ 🐇💕", "trans rights AND snacks!", "more pets pls"],
+  hungry: ["CARROT. NOW. 🥕", "starving... dying... forever...", "feeding time is NOW", "hunger level: critical"],
+  annoyed: ["ugh. do you HAVE to click that?", "the audacity...", "rude behavior detected", "why are you like this"],
+  feral: ["CHAOS CHAOS CHAOS", "I SEE EVERYTHING", "TOO MUCH ESTROGEN AAAAA", "FERAL MODE ACTIVATED"],
 }
 
-// Messages
-const messages = {
-  idle: [
-    "why are you like this",
-    "touch grass simulator loading...",
-    "i've seen your search history",
-    "compiling feelings.exe",
-    "buffering personality...",
-    "404: motivation not found",
-    "your code smells but i love you",
-    "it compiles? ship it!",
-  ],
-  hungry: [
-    "FEED ME CARROT OR ELSE",
-    "starving in digital void",
-    "hunger level: critical",
-    "feeding time or i riot",
-    "carrot deficit emergency",
-  ],
-  happy: [
-    "best human ever!!",
-    "purrr... i mean bunny sounds",
-    "chaos level: optimal",
-    "you get me",
-    "we're so back",
-  ],
-  annoyed: [
-    "stop poking me",
-    "i have boundaries",
-    "this is harassment",
-    "calling the bunny police",
-    "unsubscribing from this interaction",
-  ],
-  feral: [
-    "EVERYTHING IS FINE",
-    "CHAOS CHAOS CHAOS",
-    "SYSTEM FAILURE IMMINENT",
-    "ABORT ABORT ABORT",
-    "🔥🔥🔥 LET IT BURN 🔥🔥🔥",
-  ],
-  hacker: [
-    "accessing mainframe...",
-    "bypassing firewall...",
-    "downloading more RAM",
-    "hacking the planet",
-    "sudo feed me",
-  ],
+const getRandomMessage = (category) => {
+  const msgs = MESSAGES[category] || MESSAGES.idle
+  return msgs[Math.floor(Math.random() * msgs.length)]
 }
 
-// Achievements
-const achievementsList = [
-  { id: 'first_feed', name: 'First Feeding', desc: 'You fed the creature', icon: '🥕' },
-  { id: 'pet_master', name: 'Pet Master', desc: 'Pet bunny 50 times', icon: '💕' },
-  { id: 'chaos_agent', name: 'Chaos Agent', desc: 'Reach 100% chaos', icon: '🔥' },
-  { id: 'feral_mode', name: 'FERAL', desc: 'Unleash the beast', icon: '😈' },
-  { id: 'pink_princess', name: 'Pretty in Pink', desc: 'Reach 50% estrogen', icon: '🎀' },
-  { id: 'pride_bunny', name: 'Pride Bunny', desc: 'Max estrogen mode', icon: '🏳️‍⚧️' },
-  { id: 'hacker', name: 'Hacker Unlocked', desc: 'Win 5 mini-games', icon: '💻' },
-  { id: 'well_fed', name: 'Well Fed', desc: 'Feed bunny 50 times', icon: '🍽️' },
-]
+const Particle = ({ emoji, x, y, onComplete }) => {
+  useEffect(() => {
+    const timer = setTimeout(onComplete, 1000)
+    return () => clearTimeout(timer)
+  }, [onComplete])
+  return (
+    <div className="pointer-events-none fixed z-50 text-2xl animate-bounce-chaos" style={{ left: x, top: y, transform: `rotate(${Math.random() * 360}deg)` }}>
+      {emoji}
+    </div>
+  )
+}
+
+const AchievementToast = ({ achievement, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 3000)
+    return () => clearTimeout(timer)
+  }, [onClose])
+  return (
+    <div className="fixed bottom-4 right-4 glass-panel rounded-lg p-4 border-2 border-trans-pink animate-bounce-chaos z-50">
+      <div className="text-2xl mb-1">{achievement.icon}</div>
+      <div className="font-bold text-white text-sm">{achievement.title}</div>
+      <div className="text-xs text-trans-pink">{achievement.desc}</div>
+    </div>
+  )
+}
 
 export default function App() {
-  const [stats, setStats] = useState(() => {
-    const saved = localStorage.getItem('bunny-stats')
-    return saved ? JSON.parse(saved) : {
-      hunger: 50,
-      happiness: 50,
-      chaos: 20,
-      energy: 80,
-      lifetimeFeeds: 0,
-      lifetimePets: 0,
-      lifetimeAnnoys: 0,
-      gamesPlayed: 0,
-      gamesWon: 0,
-      sessions: 0,
-      createdAt: Date.now(),
-    }
-  })
-
-  const [mood, setMood] = useState('normal')
-  const [message, setMessage] = useState(messages.idle[0])
+  const [hunger, setHunger] = useState(50)
+  const [happiness, setHappiness] = useState(50)
+  const [chaos, setChaos] = useState(0)
+  const [estrogen, setEstrogen] = useState(0)
+  const [mood, setMood] = useState('idle')
+  const [message, setMessage] = useState("bunny.exe loaded...")
+  const [feralMode, setFeralMode] = useState(false)
   const [estrogenMode, setEstrogenMode] = useState(false)
-  const [estrogenLevel, setEstrogenLevel] = useState(0)
-  const [particles, setParticles] = useState([])
+  const [stats, setStats] = useState({ feeds: 0, pets: 0, annoys: 0, sessions: 1, createdAt: Date.now() })
   const [achievements, setAchievements] = useState([])
-  const [showAchievement, setShowAchievement] = useState(null)
-  const [isFeral, setIsFeral] = useState(false)
-  const [skin, setSkin] = useState('default')
-  const [miniGame, setMiniGame] = useState(null)
-  const [notification, setNotification] = useState(null)
+  const [newAchievement, setNewAchievement] = useState(null)
+  const [particles, setParticles] = useState([])
 
-  // Save stats
   useEffect(() => {
-    localStorage.setItem('bunny-stats', JSON.stringify(stats))
-  }, [stats])
-
-  // Unlock achievements
-  const unlockAchievement = useCallback((id) => {
-    if (!achievements.includes(id)) {
-      setAchievements(prev => [...prev, id])
-      const achievement = achievementsList.find(a => a.id === id)
-      setShowAchievement(achievement)
-      setTimeout(() => setShowAchievement(null), 3000)
+    const saved = localStorage.getItem('bunny-save')
+    if (saved) {
+      try {
+        const data = JSON.parse(saved)
+        setHunger(data.hunger ?? 50)
+        setHappiness(data.happiness ?? 50)
+        setChaos(data.chaos ?? 0)
+        setEstrogen(data.estrogen ?? 0)
+        setMood(data.mood ?? 'idle')
+        setEstrogenMode(data.estrogenMode ?? false)
+        setStats(prev => ({ ...prev, ...data.stats }))
+        setAchievements(data.achievements ?? [])
+      } catch (e) { console.error('Failed to load save', e) }
     }
-  }, [achievements])
+  }, [])
 
-  // Check achievements
   useEffect(() => {
-    if (stats.lifetimeFeeds >= 1) unlockAchievement('first_feed')
-    if (stats.lifetimeFeeds >= 50) unlockAchievement('well_fed')
-    if (stats.lifetimePets >= 50) unlockAchievement('pet_master')
-    if (stats.chaos >= 100) unlockAchievement('chaos_agent')
-    if (estrogenLevel >= 50) unlockAchievement('pink_princess')
-    if (estrogenLevel >= 100) unlockAchievement('pride_bunny')
-    if (stats.gamesWon >= 5) unlockAchievement('hacker')
-  }, [stats, estrogenLevel, unlockAchievement])
+    const data = { hunger, happiness, chaos, estrogen, mood, estrogenMode, stats, achievements }
+    localStorage.setItem('bunny-save', JSON.stringify(data))
+  }, [hunger, happiness, chaos, estrogen, mood, estrogenMode, stats, achievements])
 
-  // Determine mood and skin
-  useEffect(() => {
-    if (stats.chaos >= 100) {
-      setMood('feral')
-      setIsFeral(true)
-      setSkin('feral')
-    } else if (estrogenLevel >= 100) {
-      setMood('happy')
-      setSkin('pride')
-    } else if (estrogenLevel >= 50) {
-      setMood('happy')
-      setSkin('pink')
-    } else if (stats.hunger < 30) {
-      setMood('hungry')
-      setSkin('default')
-    } else if (stats.happiness > 70) {
-      setMood('happy')
-      setSkin('default')
-    } else if (stats.happiness < 30) {
-      setMood('annoyed')
-      setSkin('default')
-    } else {
-      setMood('normal')
-      setSkin('default')
-    }
-  }, [stats, estrogenLevel])
-
-  // Random messages
   useEffect(() => {
     const interval = setInterval(() => {
-      const category = mood === 'feral' ? 'feral' : 
-                       stats.hunger < 30 ? 'hungry' : 
-                       mood
-      const msgs = messages[category] || messages.idle
-      setMessage(msgs[Math.floor(Math.random() * msgs.length)])
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [mood, stats.hunger])
-
-  // Stats decay
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setStats(prev => ({
-        ...prev,
-        hunger: Math.max(0, prev.hunger - 2),
-        happiness: Math.max(0, prev.happiness - 1),
-        chaos: Math.min(100, Math.max(0, prev.chaos + 0.5)),
-        energy: Math.max(0, prev.energy - 1),
-      }))
-    }, 3000)
+      setHunger(h => Math.max(0, h - 2))
+      setHappiness(h => Math.max(0, h - 1))
+      setChaos(c => Math.min(100, c + 0.5))
+    }, 2000)
     return () => clearInterval(interval)
   }, [])
 
-  // Particle system
-  const spawnParticles = (emoji, count = 10) => {
-    const newParticles = Array.from({ length: count }, (_, i) => ({
-      id: Date.now() + i,
-      emoji,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      vx: (Math.random() - 0.5) * 10,
-      vy: (Math.random() - 0.5) * 10 - 5,
-    }))
+  useEffect(() => {
+    if (chaos >= 100) { setMood('feral'); setFeralMode(true) }
+    else if (hunger < 30) { setMood('hungry'); setFeralMode(false) }
+    else if (happiness > 70) { setMood('happy'); setFeralMode(false) }
+    else if (happiness < 30) { setMood('annoyed'); setFeralMode(false) }
+    else { setMood('idle'); setFeralMode(false) }
+  }, [hunger, happiness, chaos])
+
+  const checkAchievements = useCallback((newStats) => {
+    const newAchievements = []
+    if (newStats.feeds >= 50 && !achievements.includes('well-fed')) newAchievements.push({ id: 'well-fed', icon: '🍽️', title: 'Well Fed', desc: 'Fed bunny 50 times' })
+    if (newStats.pets >= 100 && !achievements.includes('pet-master')) newAchievements.push({ id: 'pet-master', icon: '💕', title: 'Pet Master', desc: 'Petted bunny 100 times' })
+    if (newStats.annoys >= 25 && !achievements.includes('chaos-agent')) newAchievements.push({ id: 'chaos-agent', icon: '😈', title: 'Chaos Agent', desc: 'Annoyed bunny 25 times' })
+    if (estrogen >= 50 && !achievements.includes('pretty-pink')) newAchievements.push({ id: 'pretty-pink', icon: '🎀', title: 'Pretty in Pink', desc: 'Reached 50% estrogen' })
+    if (estrogen >= 100 && !achievements.includes('pride-bunny')) newAchievements.push({ id: 'pride-bunny', icon: '🏳️‍⚧️', title: 'Pride Bunny', desc: 'Maximum estrogen!' })
+    if (chaos >= 100 && !achievements.includes('feral')) newAchievements.push({ id: 'feral', icon: '💀', title: 'FERAL', desc: 'Unleashed chaos' })
+    if (newAchievements.length > 0) {
+      setAchievements([...achievements, ...newAchievements.map(a => a.id)])
+      setNewAchievement(newAchievements[0])
+    }
+  }, [achievements, estrogen, chaos])
+
+  const spawnParticles = (emoji, count = 5) => {
+    const newParticles = Array.from({ length: count }, (_, i) => ({ id: Date.now() + i, emoji, x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight }))
     setParticles(prev => [...prev, ...newParticles])
-    setTimeout(() => {
-      setParticles(prev => prev.filter(p => !newParticles.find(np => np.id === p.id)))
-    }, 2000)
   }
 
-  // Actions
   const feed = () => {
-    setStats(prev => ({
-      ...prev,
-      hunger: Math.min(100, prev.hunger + 20),
-      happiness: Math.min(100, prev.happiness + 10),
-      chaos: Math.min(100, prev.chaos + 5),
-      lifetimeFeeds: prev.lifetimeFeeds + 1,
-    }))
-    spawnParticles('🥕')
-    setMessage("tasty carrot!!")
+    setHunger(h => Math.min(100, h + 20))
+    setHappiness(h => Math.min(100, h + 5))
+    setChaos(c => Math.max(0, c - 5))
+    setMessage(getRandomMessage('happy'))
+    setStats(prev => ({ ...prev, feeds: prev.feeds + 1 }))
+    spawnParticles('🥕', 8)
   }
 
   const pet = () => {
-    setStats(prev => ({
-      ...prev,
-      happiness: Math.min(100, prev.happiness + 15),
-      chaos: Math.min(100, prev.chaos + 3),
-      lifetimePets: prev.lifetimePets + 1,
-    }))
-    spawnParticles('💕')
-    setMessage("*purrs violently*")
+    setHappiness(h => Math.min(100, h + 15))
+    setHunger(h => Math.max(0, h - 5))
+    setMessage(getRandomMessage('happy'))
+    setStats(prev => ({ ...prev, pets: prev.pets + 1 }))
+    spawnParticles('💖', 10)
   }
 
   const annoy = () => {
-    setStats(prev => ({
-      ...prev,
-      happiness: Math.max(0, prev.happiness - 20),
-      chaos: Math.min(100, prev.chaos + 15),
-      lifetimeAnnoys: prev.lifetimeAnnoys + 1,
-    }))
-    spawnParticles('😈')
-    setMessage("STOP THAT")
+    setHappiness(h => Math.max(0, h - 20))
+    setChaos(c => Math.min(100, c + 15))
+    setMessage(getRandomMessage('annoyed'))
+    setStats(prev => ({ ...prev, annoys: prev.annoys + 1 }))
+    spawnParticles('😈', 6)
   }
 
   const toggleEstrogen = () => {
     setEstrogenMode(!estrogenMode)
     if (!estrogenMode) {
-      setEstrogenLevel(prev => Math.min(100, prev + 10))
-      spawnParticles('🏳️‍⚧️', 20)
-    }
+      setEstrogen(e => Math.min(100, e + 25))
+      setMessage("ESTROGEN MODE ACTIVATED 💉✨")
+      spawnParticles('💊', 15)
+      spawnParticles('✨', 10)
+    } else { setMessage("estrogen mode deactivated...") }
   }
 
-  const bunnyArt = bunnyArts[skin] || bunnyArts.normal
+  useEffect(() => {
+    const interval = setInterval(() => { if (mood === 'idle') setMessage(getRandomMessage('idle')) }, 5000)
+    return () => clearInterval(interval)
+  }, [mood])
+
+  useEffect(() => { checkAchievements(stats) }, [stats, checkAchievements])
+
+  useEffect(() => {
+    if (feralMode) document.body.classList.add('feral-mode')
+    else document.body.classList.remove('feral-mode')
+    return () => document.body.classList.remove('feral-mode')
+  }, [feralMode])
+
+  const getBunnyColor = () => {
+    if (feralMode) return '#ff003c'
+    if (estrogenMode && estrogen >= 100) return '#ff73a4'
+    if (estrogenMode && estrogen >= 50) return '#ffffff'
+    if (estrogenMode) return '#5bcefa'
+    return '#f5d5cb'
+  }
+  const bunnyColor = getBunnyColor()
 
   return (
-    <div className={`min-h-screen relative overflow-hidden ${isFeral ? 'shake' : ''}`}>
-      {/* CRT Scanlines */}
-      <div className="scanlines fixed inset-0 pointer-events-none z-50" />
+    <div className={`min-h-screen trans-gradient crt-scanlines ${feralMode ? 'feral-mode' : ''}`}>
+      {particles.map(p => <Particle key={p.id} {...p} onComplete={() => setParticles(prev => prev.filter(x => x.id !== p.id))} />)}
+      {newAchievement && <AchievementToast achievement={newAchievement} onClose={() => setNewAchievement(null)} />}
       
-      {/* Grid Background */}
-      <div className="grid-bg fixed inset-0 opacity-30" />
-
-      {/* Dynamic Background */}
-      <div 
-        className="fixed inset-0 transition-all duration-1000"
-        style={{
-          background: estrogenMode 
-            ? `linear-gradient(${estrogenLevel}deg, #ff69b4, #ffffff, #00bfff)`
-            : 'linear-gradient(135deg, #050505 0%, #1a1a2e 100%)',
-          opacity: estrogenMode ? 0.3 : 1,
-        }}
-      />
-
-      {/* Achievement Toast */}
-      {showAchievement && (
-        <div className="fixed top-4 right-4 z-50 animate-bounce">
-          <div className="bg-void-black border-4 border-neon-green p-4 rounded-lg shadow-lg shadow-neon-green">
-            <div className="text-2xl">{showAchievement.icon}</div>
-            <div className="text-neon-green font-bold">{showAchievement.name}</div>
-            <div className="text-xs text-gray-300">{showAchievement.desc}</div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Container */}
-      <div className="relative z-10 container mx-auto p-4 min-h-screen flex flex-col items-center justify-center">
-        
-        {/* Header */}
-        <header className="w-full max-w-2xl mb-8">
-          <div className="flex justify-between items-center bg-void-black/80 backdrop-blur border-4 border-neon-green p-4 rounded-lg">
-            <h1 className="text-4xl glitch-text text-neon-pink" data-text="🐇 ESTRO-BUNNY.EXE">
-              🐇 ESTRO-BUNNY.EXE
-            </h1>
-            <button
-              onClick={toggleEstrogen}
-              className={`px-4 py-2 border-4 font-bold transition-all ${
-                estrogenMode 
-                  ? 'border-pink-500 bg-pink-500 text-white rainbow' 
-                  : 'border-neon-blue text-neon-blue hover:bg-neon-blue hover:text-black'
-              }`}
-            >
-              🏳️‍⚧️ {estrogenMode ? `${estrogenLevel}%` : 'ENABLE'}
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <header className="glass-panel rounded-2xl p-6 mb-6 neon-border">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-mono font-bold text-white neon-text">🐇 ESTRO-BUNNY.EXE</h1>
+            <button onClick={toggleEstrogen} className={`px-4 py-2 rounded-lg font-bold transition-all duration-300 ${estrogenMode ? 'bg-trans-pink text-white animate-pulse-fast' : 'bg-white/20 text-white hover:bg-white/30'}`}>
+              🏳️‍⚧️ {estrogenMode ? `${estrogen}%` : 'ACTIVATE'}
             </button>
           </div>
-        </header>
-
-        {/* Bunny Display */}
-        <div className={`relative mb-8 p-8 border-4 ${
-          isFeral 
-            ? 'border-red-600 bg-red-900/50 shake' 
-            : 'border-neon-green bg-void-black/80'
-        } backdrop-blur rounded-lg ${estrogenMode && estrogenLevel >= 100 ? 'rainbow' : ''}`}>
-          
-          {/* ASCII Bunny */}
-          <pre className={`text-2xl md:text-4xl font-bold leading-tight ${
-            isFeral ? 'text-red-500' : 'text-neon-green'
-          } ${estrogenMode ? 'rainbow' : ''}`}>
-            {bunnyArt.join('\n')}
-          </pre>
-
-          {/* Mood Text */}
-          <div className="mt-4 text-center">
-            <p className={`text-xl ${isFeral ? 'text-red-500 shake' : 'text-neon-yellow'}`}>
-              mood: {mood.toUpperCase()}
-            </p>
-            <p className="text-lg text-gray-300 mt-2">"{message}"</p>
-          </div>
-        </div>
-
-        {/* Stats Bars */}
-        <div className="w-full max-w-md mb-8 space-y-3">
-          {[
-            { label: 'hunger', value: stats.hunger, color: 'bg-orange-500' },
-            { label: 'happiness', value: stats.happiness, color: 'bg-pink-500' },
-            { label: 'chaos', value: stats.chaos, color: 'bg-red-500' },
-            { label: 'energy', value: stats.energy, color: 'bg-blue-500' },
-          ].map(stat => (
-            <div key={stat.label} className="bg-void-black/80 border-2 border-neon-green p-2 rounded">
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-neon-green">{stat.label}</span>
-                <span className="text-gray-300">{Math.round(stat.value)}%</span>
-              </div>
-              <div className="h-4 bg-gray-800 rounded overflow-hidden">
-                <div 
-                  className={`h-full ${stat.color} transition-all duration-500`}
-                  style={{ width: `${stat.value}%` }}
-                />
-              </div>
-            </div>
-          ))}
-
-          {/* Estrogen Bar */}
           {estrogenMode && (
-            <div className="bg-void-black/80 border-2 border-pink-500 p-2 rounded">
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-pink-500">✨ estrogen</span>
-                <span className="text-gray-300">{estrogenLevel}%</span>
-              </div>
-              <div className="h-4 bg-gray-800 rounded overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-pink-500 via-white to-blue-500 transition-all duration-500"
-                  style={{ width: `${estrogenLevel}%` }}
-                />
+            <div className="mt-4">
+              <div className="flex justify-between text-xs text-white mb-1"><span>ESTROGEN LEVEL</span><span>{estrogen}%</span></div>
+              <div className="h-3 bg-white/20 rounded-full overflow-hidden">
+                <div className="h-full trans-gradient transition-all duration-500" style={{ width: `${estrogen}%` }} />
               </div>
             </div>
           )}
-        </div>
+        </header>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4 mb-8 flex-wrap justify-center">
-          <button
-            onClick={feed}
-            className="px-8 py-4 text-xl border-4 border-orange-500 bg-orange-500/20 text-orange-500 hover:bg-orange-500 hover:text-black font-bold rounded-lg transition-all hover:scale-110 active:scale-95"
-          >
-            🥕 FEED
-          </button>
-          <button
-            onClick={pet}
-            className="px-8 py-4 text-xl border-4 border-pink-500 bg-pink-500/20 text-pink-500 hover:bg-pink-500 hover:text-black font-bold rounded-lg transition-all hover:scale-110 active:scale-95"
-          >
-            💕 PET
-          </button>
-          <button
-            onClick={annoy}
-            className="px-8 py-4 text-xl border-4 border-red-500 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-black font-bold rounded-lg transition-all hover:scale-110 active:scale-95"
-          >
-            😈 ANNOY
-          </button>
-        </div>
-
-        {/* Lifetime Stats */}
-        <div className="w-full max-w-md bg-void-black/80 backdrop-blur border-2 border-neon-blue p-4 rounded-lg">
-          <h3 className="text-xl text-neon-blue mb-3 font-bold">📊 LIFETIME STATS</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="text-gray-300">Feeds:</div>
-            <div className="text-neon-green text-right">{stats.lifetimeFeeds}</div>
-            <div className="text-gray-300">Pets:</div>
-            <div className="text-neon-green text-right">{stats.lifetimePets}</div>
-            <div className="text-gray-300">Annoys:</div>
-            <div className="text-neon-green text-right">{stats.lifetimeAnnoys}</div>
-            <div className="text-gray-300">Sessions:</div>
-            <div className="text-neon-green text-right">{stats.sessions}</div>
-            <div className="text-gray-300">Achievements:</div>
-            <div className="text-neon-green text-right">{achievements.length}/{achievementsList.length}</div>
+        <div className="glass-panel rounded-2xl p-8 mb-6 relative overflow-hidden">
+          <div className="relative w-64 h-64 mx-auto">
+            <svg viewBox="0 0 200 200" className="w-full h-full bunny-face">
+              <ellipse cx="70" cy="50" rx="15" ry="40" fill={bunnyColor} stroke="#333" strokeWidth="3" className={feralMode ? 'animate-shake-hard' : 'animate-wiggle'} style={{ transformOrigin: '70px 90px' }} />
+              <ellipse cx="130" cy="50" rx="15" ry="40" fill={bunnyColor} stroke="#333" strokeWidth="3" className={feralMode ? 'animate-shake-hard' : 'animate-wiggle'} style={{ transformOrigin: '130px 90px', animationDelay: '0.1s' }} />
+              <ellipse cx="70" cy="50" rx="8" ry="25" fill="#ffb6c1" />
+              <ellipse cx="130" cy="50" rx="8" ry="25" fill="#ffb6c1" />
+              <ellipse cx="100" cy="110" rx="60" ry="50" fill={bunnyColor} stroke="#333" strokeWidth="3" className={feralMode ? 'animate-shake-hard' : ''} />
+              <circle cx="80" cy="100" r="12" fill="white" stroke="#333" strokeWidth="2" />
+              <circle cx="120" cy="100" r="12" fill="white" stroke="#333" strokeWidth="2" />
+              <circle cx={80 + (mood === 'annoyed' ? -2 : 0)} cy="100" r="5" fill="#333" />
+              <circle cx={120 + (mood === 'annoyed' ? 2 : 0)} cy="100" r="5" fill="#333" />
+              {(happiness > 50 || estrogenMode) && (<><ellipse cx="60" cy="120" rx="10" ry="6" fill="#ff73a4" opacity="0.6" /><ellipse cx="140" cy="120" rx="10" ry="6" fill="#ff73a4" opacity="0.6" /></>)}
+              {mood === 'happy' ? (<path d="M 85 130 Q 100 145 115 130" stroke="#333" strokeWidth="3" fill="none" />) : mood === 'annoyed' ? (<path d="M 85 135 Q 100 125 115 135" stroke="#333" strokeWidth="3" fill="none" />) : mood === 'feral' ? (<path d="M 80 125 L 90 140 L 100 130 L 110 140 L 120 125" stroke="#333" strokeWidth="3" fill="#ff003c" />) : (<ellipse cx="100" cy="135" rx="8" ry="5" fill="#333" />)}
+            </svg>
+          </div>
+          <div className="mt-6 text-center">
+            <div className="inline-block glass-panel rounded-xl px-6 py-3">
+              <p className="text-white font-mono text-lg animate-pulse-fast">{message}</p>
+            </div>
+          </div>
+          <div className="mt-4 text-center">
+            <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold ${feralMode ? 'bg-chaos-red text-white animate-shake-hard' : mood === 'happy' ? 'bg-trans-pink text-white' : mood === 'hungry' ? 'bg-orange-500 text-white' : mood === 'annoyed' ? 'bg-purple-600 text-white' : 'bg-white/20 text-white'}`}>
+              MOOD: {mood.toUpperCase()}
+            </span>
           </div>
         </div>
 
-        {/* Achievements List */}
-        <div className="w-full max-w-md mt-8 bg-void-black/80 backdrop-blur border-2 border-neon-yellow p-4 rounded-lg">
-          <h3 className="text-xl text-neon-yellow mb-3 font-bold">🏆 ACHIEVEMENTS</h3>
-          <div className="grid grid-cols-4 gap-2">
-            {achievementsList.map(ach => (
-              <div
-                key={ach.id}
-                className={`aspect-square flex items-center justify-center border-2 rounded ${
-                  achievements.includes(ach.id)
-                    ? 'border-neon-green bg-neon-green/20'
-                    : 'border-gray-700 bg-gray-900/50 opacity-50'
-                }`}
-                title={achievements.includes(ach.id) ? ach.name : 'Locked'}
-              >
-                {achievements.includes(ach.id) ? (
-                  <span className="text-2xl">{ach.icon}</span>
-                ) : (
-                  <span className="text-xl">🔒</span>
-                )}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {[{ label: 'HUNGER', value: hunger, color: 'bg-orange-500' }, { label: 'HAPPINESS', value: happiness, color: 'bg-trans-pink' }, { label: 'CHAOS', value: chaos, color: feralMode ? 'bg-chaos-red' : 'bg-chaos-green' }].map(stat => (
+            <div key={stat.label} className="glass-panel rounded-xl p-4">
+              <div className="text-xs text-white mb-2 font-mono">{stat.label}</div>
+              <div className="h-4 bg-white/20 rounded-full overflow-hidden">
+                <div className={`h-full ${stat.color} transition-all duration-300`} style={{ width: `${stat.value}%` }} />
               </div>
-            ))}
+              <div className="text-right text-white text-sm mt-1">{stat.value}%</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <button onClick={feed} className="glass-panel rounded-xl p-4 text-2xl font-bold text-white hover:bg-orange-500/50 transition-all active:scale-95 neon-border">🥕 FEED</button>
+          <button onClick={pet} className="glass-panel rounded-xl p-4 text-2xl font-bold text-white hover:bg-trans-pink/50 transition-all active:scale-95 neon-border">💕 PET</button>
+          <button onClick={annoy} className="glass-panel rounded-xl p-4 text-2xl font-bold text-white hover:bg-purple-600/50 transition-all active:scale-95 neon-border">😈 ANNOY</button>
+        </div>
+
+        <div className="glass-panel rounded-xl p-6">
+          <h2 className="text-xl font-mono font-bold text-white mb-4">LIFETIME STATS</h2>
+          <div className="grid grid-cols-2 gap-4 text-white font-mono text-sm">
+            <div>Feeds: {stats.feeds}</div>
+            <div>Pets: {stats.pets}</div>
+            <div>Annoys: {stats.annoys}</div>
+            <div>Sessions: {stats.sessions}</div>
+            <div>Achievements: {achievements.length}</div>
+            <div>Time Alive: {Math.floor((Date.now() - stats.createdAt) / 60000)} min</div>
           </div>
         </div>
-      </div>
 
-      {/* Particles */}
-      {particles.map(particle => (
-        <div
-          key={particle.id}
-          className="fixed text-2xl pointer-events-none z-40 animate-bounce"
-          style={{
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            transform: `translate(${particle.vx}px, ${particle.vy}px)`,
-          }}
-        >
-          {particle.emoji}
-        </div>
-      ))}
+        <footer className="mt-8 text-center text-white/60 font-mono text-xs">v0.7 • made with 💖 and too much estrogen</footer>
+      </div>
     </div>
   )
 }
