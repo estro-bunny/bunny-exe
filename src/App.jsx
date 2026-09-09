@@ -1,7 +1,30 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import './App.css'
 
-// 100+ unhinged bunny dialogue
+// Bunny skins/outfits
+const bunnySkins = {
+  default: { name: 'Default', emoji: '🐇', color: '#ffd93d' },
+  pink: { name: 'Pink Princess', emoji: '🐰', color: '#ff69b4' },
+  trans: { name: 'Pride Bunny', emoji: '🏳️‍⚧️', color: '#f5a9b8' },
+  feral: { name: 'FERAL', emoji: '👹', color: '#ff0000' },
+  hacker: { name: 'Hacker', emoji: '💻', color: '#00ff00' },
+  sleepy: { name: 'Sleepy', emoji: '😴', color: '#6b5b95' },
+  rainbow: { name: 'Rainbow', emoji: '🌈', color: '#ff0000' },
+}
+
+// Mini-game questions
+const miniGameQuestions = [
+  { q: "What's 2 + 2?", answers: ["4", "5", "fish", "undefined"], correct: 0 },
+  { q: "Best programming language?", answers: ["JavaScript", "Python", "Rust", "All of them"], correct: 3 },
+  { q: "How many bugs are in production?", answers: ["0", "1", "too many", "features"], correct: 3 },
+  { q: "What does CSS stand for?", answers: ["Cascading Style Sheets", "Computer Style System", "Colorful Style Stuff", "Can't Style Saturdays"], correct: 0 },
+  { q: "Is it working on your machine?", answers: ["yes", "no", "sometimes", "what is a machine"], correct: 0 },
+  { q: "Did you try turning it off and on?", answers: ["yes", "no", "tried coffee first", "what"], correct: 0 },
+  { q: "When's the deadline?", answers: ["yesterday", "today", "tomorrow", "never"], correct: 0 },
+  { q: "Who wrote this code?", answers: ["me", "intern", "AI", "gods"], correct: 3 },
+]
+
+// 150+ unhinged bunny dialogue
 const bunnyMessages = [
   // Existential dread
   "why are you coding",
@@ -14,6 +37,8 @@ const bunnyMessages = [
   "i've seen things...",
   "time is a construct",
   "we're all just pixels in the end",
+  "existence is pain but carrots help",
+  "i contemplate my digital mortality daily",
   
   // Food demands
   "feed me or i perish",
@@ -26,6 +51,9 @@ const bunnyMessages = [
   "feeding time is best time",
   "more food. more chaos.",
   "nom nom nom",
+  "hungry like the wolf",
+  "snack tax must be paid",
+  "your food looks good. sharing?",
   
   // Affection demands
   "pet me. now.",
@@ -38,6 +66,8 @@ const bunnyMessages = [
   "i'm cute. pet me.",
   "lonely bunny is sad bunny",
   "*leans into pets*",
+  "physical touch is my love language",
+  "don't stop never stop",
   
   // Developer humor
   "bunny.exe is running low on RAM",
@@ -60,6 +90,9 @@ const bunnyMessages = [
   "i'll fix it in prod",
   "technical debt is my debt",
   "spaghetti code tastes better",
+  "// TODO: fix this later (never happens)",
+  "deprecated since 2019",
+  "works locally don't worry",
   
   // Passive aggressive
   "i'm watching you code",
@@ -72,6 +105,8 @@ const bunnyMessages = [
   "that loop could be a map",
   "merge conflict incoming",
   "forgot to push again?",
+  "your IDE misses you more than you do",
+  "copy-paste programmer detected",
   
   // Meta commentary
   "hello. i am your new roommate.",
@@ -84,6 +119,8 @@ const bunnyMessages = [
   "closing this tab won't help",
   "i live in your cache now",
   "your CPU is warm. cozy.",
+  "i can see your other tabs",
+  "you have 47 tabs open. concerning.",
   
   // Chaos energy
   "chaos is a ladder",
@@ -96,6 +133,8 @@ const bunnyMessages = [
   "predictability is weakness",
   "random number god bless",
   "entropy increases",
+  "anarchy in the UI",
+  "controlled chaos is still chaos",
   
   // Mood specific
   "i'm fine. (i'm not fine)",
@@ -108,6 +147,8 @@ const bunnyMessages = [
   "peak performance achieved",
   "i feel attack",
   "this is fine 🔥",
+  "vibing negatively",
+  "emotionally compromised",
   
   // Rare gems
   "i've calculated the meaning of life: 42 carrots",
@@ -120,6 +161,15 @@ const bunnyMessages = [
   "the quick brown fox jumped over my patience",
   "to be or not to be: that is the question",
   "et tu, brute force?",
+  "four score and seven bugs ago",
+  "i have a dream that one day all code will compile",
+  
+  // Notification specific
+  "hey! you forgot about me!",
+  "come back!!",
+  "i'm lonely over here",
+  "checking in... still alive?",
+  "your absence is noted",
 ]
 
 function App() {
@@ -136,22 +186,61 @@ function App() {
       mood: 'suspicious',
       message: "hello. i am your new roommate.",
       lastInteraction: Date.now(),
-      outfits: ['default'],
-      currentOutfit: 'default',
+      currentSkin: 'default',
+      unlockedSkins: ['default'],
       stats: {
         timesFed: 0,
         timesPet: 0,
         timesAnnoyed: 0,
         sessionsOpened: 0,
         totalTimeAlive: Date.now(),
+        gamesPlayed: 0,
+        gamesWon: 0,
       },
       achievements: [],
+      estrogenMode: false,
+      estrogenLevel: 0,
+      customName: null,
     }
   }
 
   const [bunny, setBunny] = useState(loadBunnyState)
   const [particles, setParticles] = useState([])
   const [showAchievement, setShowAchievement] = useState(null)
+  const [showMiniGame, setShowMiniGame] = useState(false)
+  const [currentQuestion, setCurrentQuestion] = useState(null)
+  const [notificationPermission, setNotificationPermission] = useState('default')
+  const [lastNotifTime, setLastNotifTime] = useState(0)
+
+  // Request notification permission
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      // Don't auto-request, wait for user interaction
+    }
+  }, [])
+
+  // Send desktop notification
+  const sendNotification = useCallback((title, body) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const now = Date.now()
+      if (now - lastNotifTime > 60000) { // Max 1 per minute
+        new Notification(title, {
+          body,
+          icon: '🐇',
+        })
+        setLastNotifTime(now)
+      }
+    }
+  }, [lastNotifTime])
+
+  // Request notification permission on interaction
+  const requestNotificationPermission = () => {
+    if ('Notification' in window) {
+      Notification.requestPermission().then(permission => {
+        setNotificationPermission(permission)
+      })
+    }
+  }
 
   // Save to localStorage whenever bunny changes
   useEffect(() => {
@@ -270,6 +359,12 @@ function App() {
       terminally_online: { title: 'Terminally Online', desc: 'Opened the app 47 times today.' },
       girl_what_are_you_doing: { title: 'Girl, What Are You Doing?', desc: 'Changed the CSS at 3:17 AM.' },
       feral: { title: 'FERAL', desc: 'Reached 100 chaos.' },
+      hacker_unlocked: { title: 'Hacker Unlocked', desc: 'Won 5 mini-games. You\'re a coding wizard!' },
+      pink_unlocked: { title: 'Pretty in Pink', desc: 'Estrogen level reached 50%. So cute!' },
+      trans_unlocked: { title: 'Pride Bunny', desc: 'Max estrogen! Trans rights forever!' },
+      well_fed: { title: 'Well Fed', desc: 'Fed bunny 50 times. Good parenting!' },
+      pet_master: { title: 'Pet Master', desc: 'Pet bunny 100 times. Maximum affection!' },
+      chaos_agent: { title: 'Chaos Agent', desc: 'Annoyed bunny 25 times. Why??' },
     }
     setShowAchievement({ id, ...achievementData[id] })
     setTimeout(() => setShowAchievement(null), 4000)
@@ -282,6 +377,24 @@ function App() {
     if (newBunny.chaos >= 100 && !newAchievements.includes('feral')) {
       newAchievements.push('feral')
       triggerAchievement('feral')
+    }
+    
+    // Well Fed achievement
+    if ((newBunny.stats?.timesFed || 0) >= 50 && !newAchievements.includes('well_fed')) {
+      newAchievements.push('well_fed')
+      triggerAchievement('well_fed')
+    }
+    
+    // Pet Master achievement
+    if ((newBunny.stats?.timesPet || 0) >= 100 && !newAchievements.includes('pet_master')) {
+      newAchievements.push('pet_master')
+      triggerAchievement('pet_master')
+    }
+    
+    // Chaos Agent achievement
+    if ((newBunny.stats?.timesAnnoyed || 0) >= 25 && !newAchievements.includes('chaos_agent')) {
+      newAchievements.push('chaos_agent')
+      triggerAchievement('chaos_agent')
     }
     
     if (newAchievements.length !== (bunny.achievements || []).length) {
@@ -346,7 +459,104 @@ function App() {
     }
     setBunny(newBunny)
     checkAchievements({ ...newBunny, chaos: newChaos })
+    requestNotificationPermission()
   }
+
+  // Mini-game functions
+  const startMiniGame = () => {
+    const q = miniGameQuestions[Math.floor(Math.random() * miniGameQuestions.length)]
+    setCurrentQuestion(q)
+    setShowMiniGame(true)
+  }
+
+  const answerQuestion = (answerIndex) => {
+    const isCorrect = answerIndex === currentQuestion.correct
+    setBunny(prev => ({
+      ...prev,
+      happiness: isCorrect ? Math.min(100, prev.happiness + 20) : Math.max(0, prev.happiness - 5),
+      chaos: isCorrect ? Math.min(100, prev.chaos + 5) : prev.chaos,
+      message: isCorrect ? "CORRECT! i'm so proud" : `wrong. it was ${currentQuestion.answers[currentQuestion.correct]}`,
+      stats: {
+        ...prev.stats,
+        gamesPlayed: (prev.stats?.gamesPlayed || 0) + 1,
+        gamesWon: isCorrect ? (prev.stats?.gamesWon || 0) + 1 : prev.stats?.gamesWon || 0,
+      },
+    }))
+    spawnParticles(isCorrect ? '✨' : '💀')
+    setShowMiniGame(false)
+    
+    // Unlock hacker skin after winning 5 games
+    if (isCorrect && !bunny.unlockedSkins?.includes('hacker')) {
+      const newGamesWon = (bunny.stats?.gamesWon || 0) + 1
+      if (newGamesWon >= 5) {
+        setBunny(prev => ({
+          ...prev,
+          unlockedSkins: [...(prev.unlockedSkins || []), 'hacker'],
+        }))
+        triggerAchievement('hacker_unlocked')
+      }
+    }
+  }
+
+  // Toggle Estrogen Mode
+  const toggleEstrogenMode = () => {
+    setBunny(prev => ({
+      ...prev,
+      estrogenMode: !prev.estrogenMode,
+      estrogenLevel: !prev.estrogenMode ? 50 : prev.estrogenLevel,
+    }))
+    spawnParticles('🏳️‍⚧️')
+  }
+
+  // Change bunny skin
+  const changeSkin = (skinKey) => {
+    if (bunny.unlockedSkins?.includes(skinKey)) {
+      setBunny(prev => ({ ...prev, currentSkin: skinKey }))
+      spawnParticles(bunnySkins[skinKey].emoji)
+    }
+  }
+
+  // Check for low hunger notification
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (bunny.hunger < 20 && bunny.lastInteraction < Date.now() - 300000) {
+        sendNotification('🐇 Bunny is hungry!', 'Feed me or i perish...')
+        setBunny(prev => ({ ...prev, message: "hey! you forgot about me!" }))
+      }
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [bunny.hunger, bunny.lastInteraction, sendNotification])
+
+  // Increase estrogen level on interactions
+  useEffect(() => {
+    if (bunny.estrogenMode && bunny.estrogenLevel < 100) {
+      const interval = setInterval(() => {
+        setBunny(prev => ({
+          ...prev,
+          estrogenLevel: Math.min(100, prev.estrogenLevel + 1),
+        }))
+      }, 1000)
+      return () => clearInterval(interval)
+    }
+  }, [bunny.estrogenMode])
+
+  // Unlock pink skin at estrogen level 50
+  useEffect(() => {
+    if (bunny.estrogenLevel >= 50 && !bunny.unlockedSkins?.includes('pink')) {
+      setBunny(prev => ({
+        ...prev,
+        unlockedSkins: [...(prev.unlockedSkins || []), 'pink'],
+      }))
+      triggerAchievement('pink_unlocked')
+    }
+    if (bunny.estrogenLevel >= 100 && !bunny.unlockedSkins?.includes('trans')) {
+      setBunny(prev => ({
+        ...prev,
+        unlockedSkins: [...(prev.unlockedSkins || []), 'trans'],
+      }))
+      triggerAchievement('trans_unlocked')
+    }
+  }, [bunny.estrogenLevel])
 
   const StatBar = ({ label, value, color }) => (
     <div className="stat-container">
@@ -379,7 +589,7 @@ function App() {
   )
 
   return (
-    <div className={`app ${bunny.mood === 'feral' ? 'feral-mode' : ''}`}>
+    <div className={`app ${bunny.mood === 'feral' ? 'feral-mode' : ''} ${bunny.estrogenMode ? 'estrogen-mode' : ''}`} data-estrogen-level={bunny.estrogenLevel}>
       {/* Achievement popup */}
       {showAchievement && (
         <div className="achievement-popup">
@@ -387,6 +597,27 @@ function App() {
           <div className="achievement-content">
             <div className="achievement-title">{showAchievement.title}</div>
             <div className="achievement-desc">{showAchievement.desc}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Mini-game modal */}
+      {showMiniGame && currentQuestion && (
+        <div className="modal-overlay" onClick={() => setShowMiniGame(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>🎮 Mini Game!</h3>
+            <p className="question">{currentQuestion.q}</p>
+            <div className="answers-grid">
+              {currentQuestion.answers.map((answer, i) => (
+                <button 
+                  key={i} 
+                  className="answer-btn"
+                  onClick={() => answerQuestion(i)}
+                >
+                  {answer}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -399,26 +630,42 @@ function App() {
       <div className="bunny-window">
         <div className="title-bar">
           <span>🐇 ESTRO-BUNNY.EXE</span>
+          <div className="title-controls">
+            <button 
+              className={`estrogen-toggle ${bunny.estrogenMode ? 'active' : ''}`}
+              onClick={toggleEstrogenMode}
+              title="Toggle Estrogen Mode™"
+            >
+              🏳️‍⚧️
+            </button>
+          </div>
         </div>
 
         <div className="bunny-display">
           <div className="bunny-art">
-            {bunny.mood === 'feral' ? (
-              <pre className="ascii-bunny feral">
-{`
-   /\\_/\\  
-  ( >.< ) 
-   > ^ <   
-  (CHAOS)`}
-              </pre>
-            ) : (
-              <pre className="ascii-bunny">
+            <div className="skin-selector">
+              {Object.entries(bunnySkins).map(([key, skin]) => (
+                bunny.unlockedSkins?.includes(key) && (
+                  <button
+                    key={key}
+                    className={`skin-btn ${bunny.currentSkin === key ? 'active' : ''}`}
+                    onClick={() => changeSkin(key)}
+                    title={skin.name}
+                  >
+                    {skin.emoji}
+                  </button>
+                )
+              ))}
+            </div>
+            <pre className="ascii-bunny" style={{ color: bunnySkins[bunny.currentSkin]?.color || '#ffd93d' }}>
 {`
    /\\_/\\  
   ( o.o ) 
    > ^ <   
 `}
-              </pre>
+            </pre>
+            {bunny.mood === 'feral' && (
+              <div className="feral-overlay">CHAOS</div>
             )}
           </div>
 
@@ -426,10 +673,14 @@ function App() {
             <StatBar label="hunger" value={bunny.hunger} color="#ff6b6b" />
             <StatBar label="happiness" value={bunny.happiness} color="#ffd93d" />
             <StatBar label="chaos" value={bunny.chaos} color="#c44dff" />
+            {bunny.estrogenMode && (
+              <StatBar label="estrogen" value={bunny.estrogenLevel} color="#f5a9b8" />
+            )}
           </div>
 
           <div className="mood-display">
             mood: <span className={`mood-${bunny.mood}`}>{bunny.mood}</span>
+            {bunny.estrogenMode && <span className="estrogen-indicator"> 💖</span>}
           </div>
           
           {/* Stats tracker */}
@@ -437,7 +688,8 @@ function App() {
             <small>
               fed: {bunny.stats?.timesFed || 0} | 
               pet: {bunny.stats?.timesPet || 0} | 
-              annoyed: {bunny.stats?.timesAnnoyed || 0}
+              annoyed: {bunny.stats?.timesAnnoyed || 0} |
+              games: {bunny.stats?.gamesWon || 0}/{bunny.stats?.gamesPlayed || 0}
             </small>
           </div>
         </div>
@@ -451,6 +703,9 @@ function App() {
           </button>
           <button onClick={annoyBunny} className="action-btn annoy">
             😈 annoy
+          </button>
+          <button onClick={startMiniGame} className="action-btn game">
+            🎮 play
           </button>
         </div>
 

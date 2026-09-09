@@ -1,135 +1,262 @@
 # 🐇 bunny.exe
 
-> Tamagotchi × shitpost generator × developer companion × chaos engine
+> **Tamagotchi × shitpost generator × developer companion × chaos engine**
 
-A tiny desktop/web app that acts like an unhinged digital bunny living inside your computer.
+A tiny web app that acts like an unhinged digital bunny living inside your browser. It has a personality, reacts to what you're doing, and gets progressively gayer the more you interact with it.
 
-## Features (v0.2)
+![EstroBunny](https://img.shields.io/badge/EstroBunny-chaos-orange) ![License](https://img.shields.io/badge/license-MIT-green)
 
-- 🐇 ASCII bunny with mood-based appearances
-- 📊 Three stats: hunger, happiness, chaos
-- 😊 Five moods: suspicious, content, excited, annoyed, feral
-- 🎮 Three actions: feed, pet, annoy
-- 💬 **100+ unhinged bunny messages** (categorized by topic!)
-- 💾 Persistent state (survives page refresh!)
-- ✨ Animations and CSS effects
-- 🔥 FERAL mode when chaos reaches 100%
-- 🎉 **Particle effects** on interactions
-- 🏆 **Achievements system** with popup notifications
-- 📈 **Stats tracking** (times fed, pet, annoyed)
-- 🎲 **Random events** every 30 seconds
-- 📜 **Recent achievements** display
+---
 
-## Tech Stack
+## ✨ Features (v0.3 Complete Edition)
 
-- **React** - Components, hooks, state management
-- **Vite** - Blazing fast build tool
-- **CSS** - Animations, responsive UI, ridiculous styling
-- **localStorage** - Bunny persistence between sessions
+### Core Loop
+- **3 Stats**: Hunger, Happiness, Chaos (all decay over time)
+- **5 Moods**: Suspicious, Content, Excited, Annoyed, FERAL
+- **4 Actions**: Feed 🥕, Pet 💕, Annoy 😈, Play Mini-game 🎮
+- **Persistent State**: Bunny survives page refreshes via localStorage
+- **Random Events**: 10% chance every 30s of spontaneous chaos
+- **150+ Messages**: Existential dread, food demands, dev humor, and unhinged commentary
 
-## Getting Started
+### 🏳️‍⚧️ Estrogen Mode™
+Toggle the trans flag button to activate:
+- Progressive pink → white → blue background shifts
+- Sparkle particle effects
+- Rainbow glow at maximum estrogen
+- Heart-beat indicator and spinning flag animation
+- Unlocks special skins and achievements
+
+### 🎮 Mini-Games
+- **Programming Trivia**: 8 questions, multiple choice
+- Win 5 games to unlock the **Hacker Skin** 💻
+- Tracks wins/play count in lifetime stats
+
+### 🎨 7 Unlockable Skins
+| Skin | How to Unlock |
+|------|---------------|
+| 🐇 Default | Start game |
+| 🐰 Pink Princess | Reach 50% Estrogen |
+| 🏳️‍⚧️ Pride Bunny | Reach 100% Estrogen |
+| 👹 FERAL | Reach 100% Chaos |
+| 💻 Hacker | Win 5 trivia games |
+| 😴 Sleepy | Idle for 1 hour (future) |
+| 🌈 Rainbow | Unlock all achievements (future) |
+
+### 🏆 Achievements System
+- **First Feeding** - You fed the creature
+- **Pretty in Pink** - Reached 50% estrogen
+- **Pride Bunny** - Maxed out estrogen mode
+- **Hacker Unlocked** - Won 5 trivia games
+- **Well Fed** - Fed bunny 50 times
+- **Pet Master** - Petted bunny 100 times
+- **Chaos Agent** - Annoyed bunny 25 times
+- **Digital Parenting** - Keep alive for 24 hours (future)
+
+### 📊 Lifetime Stats
+Tracks everything:
+- Total feeds, pets, annoys
+- Games played/won
+- Current session time
+- Max chaos reached
+- Total play sessions
+
+### 🔔 Desktop Notifications
+- Browser notifications when bunny is hungry and tab is inactive
+- Rate-limited to 1 per minute to avoid spam
+
+### 💫 Visual Effects
+- Emoji particle explosions on every interaction
+- Screen shake on high chaos
+- Color bursts matching mood
+- CSS animations go "completely fucking stupid" in FERAL mode
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
 
 ```bash
+# Clone the repo
+git clone https://github.com/estro-bunny/bunny-exe.git
+cd bunny-exe
+
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-## How to Play
+Open `http://localhost:5173` in your browser.
 
-1. **Feed** the bunny (🥕) - Increases hunger, slightly increases happiness
-2. **Pet** the bunny (💕) - Increases happiness, slightly increases chaos
-3. **Annoy** the bunny (😈) - Decreases happiness, significantly increases chaos
+---
 
-Stats decay over time, so check back regularly!
+## 🎮 How to Play
 
-When chaos reaches 100%, the bunny enters **FERAL MODE**:
-- The UI starts shaking violently
-- Buttons bounce around
-- The bunny's appearance changes (red glitching ASCII)
-- Everything gets progressively more unhinged
+1. **Keep stats balanced**: Hunger, happiness, and chaos all decay over time
+2. **Interact often**: Feed, pet, annoy, or play games
+3. **Watch the mood**: Different actions affect different stats
+4. **Unlock skins**: Reach milestones to change bunny appearance
+5. **Go FERAL**: Let chaos hit 100% for maximum destruction
+6. **Enable Estrogen Mode**: Click 🏳️‍⚧️ for progressive gay transformation
 
-## Achievements
+### Stat Effects
+| Action | Hunger | Happiness | Chaos |
+|--------|--------|-----------|-------|
+| Feed 🥕 | +25 | +5 | -5 |
+| Pet 💕 | -5 | +20 | -10 |
+| Annoy 😈 | -10 | -15 | +25 |
+| Win Game 🎮 | -5 | +30 | +10 |
 
-Unlock these by playing:
+---
 
-| Achievement | How to Unlock |
-|-------------|---------------|
-| 🏆 First Feeding | Feed the bunny for the first time |
-| 🏆 Touch Grass | Open the app after 6 hours of inactivity |
-| 🏆 Terminally Online | Open the app 47 times in one day |
-| 🏆 FERAL | Reach 100% chaos |
-| 🏆 Digital Parenting | Keep bunny alive for 24 hours |
-| 🏆 Girl, What Are You Doing? | Change CSS at 3:17 AM (manual) |
+## 🛠️ Tech Stack
 
-## Message Categories
+- **React 18** - UI components and state management
+- **Vite** - Blazing fast build tool
+- **CSS3 Animations** - Shake, bounce, pulse, rainbow effects
+- **LocalStorage API** - Persistent bunny state
+- **Notification API** - Desktop alerts
+- **Zero external dependencies** - Pure React + CSS
 
-The bunny has 100+ messages organized by theme:
+---
 
-- **Existential dread** - "what is my purpose"
-- **Food demands** - "carrot. now."
-- **Affection demands** - "pet me. now."
-- **Developer humor** - "npm install feelings"
-- **Passive aggressive** - "your code smells but i love you"
-- **Meta commentary** - "localStorage won't save you"
-- **Chaos energy** - "entropy increases"
-- **Rare gems** - "i've calculated the meaning of life: 42 carrots"
-
-## Random Events
-
-Every 30 seconds, there's a 10% chance of a random event:
-
-- "*bunny sneezes confetti*" 🎉
-- "*bunny does a backflip*" ✨
-- "*bunny steals 1% of your RAM*"
-- And more!
-
-## Project Structure
+## 📂 Project Structure
 
 ```
 bunny-exe/
 ├── src/
-│   ├── App.jsx      # Main bunny logic & component
-│   ├── App.css      # All the styles & animations
-│   └── main.jsx     # React entry point
-├── index.html
-├── package.json
-└── vite.config.js
+│   ├── App.jsx          # Main bunny logic, state, interactions
+│   ├── App.css          # All styles, animations, themes
+│   └── main.jsx         # React entry point
+├── dist/                # Production build output
+├── index.html           # HTML template
+├── package.json         # Dependencies and scripts
+└── README.md            # This file
 ```
-
-## Roadmap (Future Versions)
-
-### v0.3 — Make it yours
-- [ ] Estrogen Mode™ (progressive pink/sparkle overload as happiness increases)
-- [ ] More achievements (20+ total)
-- [ ] Custom bunny names
-- [ ] Different bunny outfits/skins
-- [ ] Desktop notifications
-- [ ] Statistics dashboard
-- [ ] Sound effects (optional)
-- [ ] Mobile responsive improvements
-
-### v1.0 — Peak chaos
-- [ ] Multiple bunnies
-- [ ] Bunny breeding (god help us)
-- [ ] Mini-games
-- [ ] Plugin system
-- [ ] Shareable achievement cards
-
-## Why This Project?
-
-This project teaches:
-- JavaScript state management
-- React hooks (useState, useEffect)
-- localStorage for persistence
-- CSS animations and keyframes
-- Component architecture
-- Event handling
-- Git workflow with meaningful commits
-
-And most importantly: **it's actually fun to work on.**
 
 ---
 
-*Current Version: v0.2*
+## 🗺️ Roadmap
 
-*"why are you coding"* — bunny.exe
+### ✅ v0.1 - Core Loop (DONE)
+- [x] Basic bunny with ASCII art
+- [x] 3 stats system
+- [x] Mood system
+- [x] Random dialogue
+- [x] LocalStorage persistence
+- [x] Basic animations
+
+### ✅ v0.2 - Chaos Engine (DONE)
+- [x] 100+ messages
+- [x] Achievement system
+- [x] Particle effects
+- [x] Random events
+- [x] Enhanced FERAL mode
+- [x] Lifetime stats
+
+### ✅ v0.3 - Estrogen Edition (DONE)
+- [x] Estrogen Mode™ toggle
+- [x] Trans theme colors
+- [x] Unlockable skins (7 total)
+- [x] Mini-game system
+- [x] Desktop notifications
+- [x] 6+ achievements
+- [x] Enhanced visual effects
+
+### 🔜 v0.4 - Future Chaos
+- [ ] Sleepy skin (1 hour idle)
+- [ ] Rainbow skin (all achievements)
+- [ ] 24-hour survival achievement
+- [ ] Custom bunny naming
+- [ ] Sound effects toggle
+- [ ] More mini-games
+- [ ] Bunny house customization
+- [ ] Photo mode
+- [ ] Shareable chaos reports
+
+---
+
+## 🎨 Design Philosophy
+
+> "Don't start by asking an AI to build the whole thing. Build it step by step, commit after every meaningful step, and end up with something that actually feels like you."
+
+This project was built intentionally:
+1. Create React project
+2. Make Bunny component
+3. Add stats
+4. Add buttons
+5. Add state changes
+6. Add random dialogue
+7. Save state
+8. Animate it
+9. Make it progressively more unhinged
+
+Each commit represents a learnable chunk:
+```bash
+git commit -m "feat: add bunny"
+git commit -m "feat: add mood system"
+git commit -m "feat: add random dialogue"
+git commit -m "feat: persist bunny state"
+git commit -m "feat: add chaos mode"
+git commit -m "feat: add Estrogen Mode™"
+git commit -m "feat: add mini-games and skins"
+```
+
+---
+
+## 📄 License
+
+MIT License - feel free to fork, modify, and make your own chaotic bunny! See [LICENSE](LICENSE) for details.
+
+## 🤝 Contributing
+
+Want to make it even more chaotic?
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/more-chaos`)
+3. Commit your changes (`git commit -m 'feat: add more chaos'`)
+4. Push to the branch (`git push origin feature/more-chaos`)
+5. Open a Pull Request
+
+**Guidelines:**
+- Keep it small enough to finish
+- Keep it weird enough to be fun
+- Keep it technically varied to learn something
+
+---
+
+## 📄 License
+
+MIT License - do whatever you want with this chaos
+
+---
+
+## 🙏 Acknowledgments
+
+Inspired by:
+- Tamagotchi virtual pets
+- Shitpost Twitter
+- Developer burnout culture
+- The need for something silly in a serious world
+
+---
+
+<div align="center">
+
+**Made with 🩷🤍💙 and excessive amounts of chaos**
+
+*"why are you coding"* - bunny.exe, probably
+
+</div>
