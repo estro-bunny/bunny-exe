@@ -4,11 +4,11 @@
 
 A tiny web app that acts like an unhinged digital bunny living inside your browser. It has a personality, reacts to what you're doing, and gets progressively gayer the more you interact with it.
 
-![EstroBunny](https://img.shields.io/badge/EstroBunny-chaos-orange) ![License](https://img.shields.io/badge/license-MIT-green) ![Version](https://img.shields.io/badge/version-v0.4-blue)
+![EstroBunny](https://img.shields.io/badge/EstroBunny-chaos-orange) ![License](https://img.shields.io/badge/license-MIT-green) ![Version](https://img.shields.io/badge/version-v0.7-blue)
 
 ---
 
-## ✨ Features (v0.4 Desktop Companion Edition)
+## ✨ Features (v0.7 Desktop Companion Edition)
 
 ### Core Loop
 - **3 Stats**: Hunger, Happiness, Chaos (all decay over time)
@@ -188,7 +188,7 @@ bunny-exe/
 - [x] Skin unlock conditions
 - [x] Enhanced visual effects
 
-### 🔜 v0.5 - Future Chaos
+### 🔜 v0.8 - Future Chaos
 - [ ] Sleepy skin (1 hour idle)
 - [ ] Rainbow skin (all achievements)
 - [ ] Custom bunny names
