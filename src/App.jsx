@@ -52,9 +52,10 @@ export default function App() {
   const [achievements, setAchievements] = useState([])
   const [newAchievement, setNewAchievement] = useState(null)
   const [particles, setParticles] = useState([])
+  const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('bunny-save')
+    const saved = localStorage.getItem('bunny-save') ?? localStorage.getItem('bunny-state')
     if (saved) {
       try {
         const data = JSON.parse(saved)
@@ -64,19 +65,41 @@ export default function App() {
         setEstrogen(data.estrogen ?? 0)
         setMood(data.mood ?? 'idle')
         setEstrogenMode(data.estrogenMode ?? false)
-        setStats(prev => ({ ...prev, ...data.stats }))
+        setStats(prev => ({
+          ...prev,
+          ...(data.stats ?? {}),
+          feeds: data.stats?.feeds ?? data.feedCount ?? prev.feeds,
+          pets: data.stats?.pets ?? data.petCount ?? prev.pets,
+          annoys: data.stats?.annoys ?? data.annoyCount ?? prev.annoys,
+          sessions: data.stats?.sessions ?? data.totalSessions ?? prev.sessions,
+        }))
         setAchievements(data.achievements ?? [])
-      } catch (e) { console.error('Failed to load save', e) }
+      } catch (e) {
+        console.error('Failed to load save', e)
+      }
     }
+    setHydrated(true)
   }, [])
 
   useEffect(() => {
-    const data = { hunger, happiness, chaos, estrogen, mood, estrogenMode, stats, achievements }
+    if (!hydrated) return
+
+    const data = {
+      schemaVersion: 1,
+      hunger,
+      happiness,
+      chaos,
+      estrogen,
+      mood,
+      estrogenMode,
+      stats,
+      achievements,
+    }
     localStorage.setItem('bunny-save', JSON.stringify(data))
 
-    // Keep the standalone companion and the EstroBunny Burrow interoperable.
-    // bunny-state is the shared, lightweight schema consumed by the Burrow.
+    // bunny-state is the canonical cross-project schema consumed by the Burrow.
     localStorage.setItem('bunny-state', JSON.stringify({
+      schemaVersion: 1,
       hunger,
       happiness,
       chaos,
@@ -92,7 +115,7 @@ export default function App() {
       lastVisit: Date.now(),
       totalSessions: stats.sessions,
     }))
-  }, [hunger, happiness, chaos, estrogen, mood, estrogenMode, stats, achievements])
+  }, [hydrated, hunger, happiness, chaos, estrogen, mood, estrogenMode, stats, achievements])
 
   useEffect(() => {
     const interval = setInterval(() => {
