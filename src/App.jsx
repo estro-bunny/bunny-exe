@@ -73,6 +73,25 @@ export default function App() {
   useEffect(() => {
     const data = { hunger, happiness, chaos, estrogen, mood, estrogenMode, stats, achievements }
     localStorage.setItem('bunny-save', JSON.stringify(data))
+
+    // Keep the standalone companion and the EstroBunny Burrow interoperable.
+    // bunny-state is the shared, lightweight schema consumed by the Burrow.
+    localStorage.setItem('bunny-state', JSON.stringify({
+      hunger,
+      happiness,
+      chaos,
+      mood: mood === 'idle' ? 'Content' : mood,
+      estrogen,
+      feedCount: stats.feeds,
+      petCount: stats.pets,
+      annoyCount: stats.annoys,
+      gamesPlayed: stats.gamesPlayed ?? 0,
+      gamesWon: stats.gamesWon ?? 0,
+      skin: stats.skin ?? 'default',
+      achievements,
+      lastVisit: Date.now(),
+      totalSessions: stats.sessions,
+    }))
   }, [hunger, happiness, chaos, estrogen, mood, estrogenMode, stats, achievements])
 
   useEffect(() => {
